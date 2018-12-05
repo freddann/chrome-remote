@@ -1,0 +1,17 @@
+{
+    "extends": ["eslint:recommended", "google"],
+    "parserOptions": {
+        "ecmaVersion": 2017
+    },
+    "env": {
+        "es6": true
+    },
+    "rules": {
+        "linebreak-style": ["error", "windows"],
+        "indent": ["error", 4],
+        "require-jsdoc": "off",
+        "no-console": "off",
+        "object-curly-spacing": "off",
+        "max-len": [1, { "code": 120 }]
+    }
+}

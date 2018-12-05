@@ -7,12 +7,18 @@
     "icons": {
         "16": "ui/icon_16.png"
     },
+    "sockets":{
+        "tcpServer": {
+            "listen": "*"
+        }
+    },
     "app": {
         "background": {
             "scripts": [
                 "lib/underscore.min.js",
                 "lib/wsc-chrome.min.js",
-                "ui-launcher.js"
+                "ui-launcher.js",
+                "http.js"
             ]
         }
     }

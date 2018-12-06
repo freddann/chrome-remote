@@ -2,21 +2,79 @@
 
 const APP_ID='fepgjiacledgmlkobcapbbacgdanjgma';
 
+function formatTab(tab) {
+    return {
+        index: tab.index,
+        title: tab.title,
+        url: tab.url,
+    };
+}
+function formatWindow(window) {
+    return {
+        id: window.id,
+        tabs: window.tabs.map((tab) => formatTab(tab)),
+    };
+}
+
 // ----- api tasks ------
+
+function getAllWindows(sendResponse) {
+    chrome.windows.getAll({ populate: true },
+        function(allWindows) {
+            console.log(allWindows);
+            sendResponse({
+                status: 200,
+                windows: allWindows.map((window) => formatWindow(window)),
+            });
+        });
+}
+
+function focusWindowByIndex(index) {
+    chrome.windows.getAll({ populate: true },
+        function(allWindows) {
+            if (index < allWindows.length) {
+                chrome.windows.update(allWindows[index].id, { focused: true });
+            }
+        });
+}
 
 function focusTabByIndex(index) {
     if (Number.isNaN(index)||index<0) {
         return;
     }
 
-    chrome.windows.getCurrent({ populate: true },
+    chrome.windows.getLastFocused({ populate: true },
         function(currentWindow) {
-            console.log(currentWindow);
             if (index<currentWindow.tabs.length) {
                 chrome.tabs.highlight({ windowId: currentWindow.id, tabs: index });
             }
         });
 }
+
+function focusNextTab() {
+    chrome.windows.getLastFocused({ populate: true },
+        function(currentWindow) {
+            const focusedTab = currentWindow.tabs.find((tab) => tab.active);
+            let index = focusedTab.index + 1;
+            if (index>=currentWindow.tabs.length) {
+                index = 0;
+            }
+            chrome.tabs.highlight({ windowId: currentWindow.id, tabs: index });
+        });
+}
+
+function focusPreviousTab() {
+    chrome.windows.getLastFocused({ populate: true },
+        function(currentWindow) {
+            const focusedTab = currentWindow.tabs.find((tab) => tab.active);
+            let index = focusedTab.index - 1;
+            if (index<0) {
+                index = currentWindow.tabs.length - 1;
+            }
+            chrome.tabs.highlight({ windowId: currentWindow.id, tabs: index });
+        });
+}
+
 
 // ----- listen for and act on messages ------
 
@@ -27,16 +85,33 @@ function auth(sender) {
 console.log('Listening for events');
 chrome.runtime.onMessageExternal.addListener(
     function(request, sender, sendResponse) {
-        console.log(request, sender);
         if (auth(sender)) {
+            console.log('A message was authenticated', request, sender);
             switch (request.cmd) {
-            case 'focusTabIndex': focusTabByIndex(Number(request.value)); break;
-            case 'notification':
-            default: new Notification('Got something from '+sender.id, { body: JSON.stringify(request.message, null, 4) });
+            case 'focusWindowByIndex': focusWindowByIndex(Number(request.value));
+                sendResponse({ 'status': 200 });
+                break;
+            case 'focusTabByIndex': focusTabByIndex(Number(request.value));
+                sendResponse({ 'status': 200 });
+                break;
+            case 'focusNextTab': focusNextTab();
+                sendResponse({ 'status': 200 });
+                break;
+            case 'focusPreviousTab': focusPreviousTab();
+                sendResponse({ 'status': 200 });
+                break;
+            case 'getAllWindows': getAllWindows(sendResponse);
+                return true;
+            case 'notification': new Notification('Header', { body: JSON.stringify(request.message, null, 4) });
+                sendResponse({ 'status': 200 });
+                break;
+            default: new Notification('Got something', { body: JSON.stringify(request, null, 4) });
+                sendResponse({ 'status': 200 });
             }
-
-            sendResponse({ 'status': 200 });
         } else {
-            sendResponse({ 'status': 500 });
+            console.log('A message was rejected');
+            sendResponse({ 'status': 401 });
         }
+
+        return true;
     });

@@ -19,7 +19,7 @@
         } else {
             chrome.runtime.sendMessage(
                 sendId.value,
-                { value: sendText.value, cmd: 'focusTabIndex' },
+                { value: sendText.value, cmd: 'focusTabByIndex', method: 'POST' },
                 function(response) {
                     appendLog('response: '+JSON.stringify(response, null, 4));
                 });

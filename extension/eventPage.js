@@ -2,6 +2,8 @@
 
 const APP_ID='fepgjiacledgmlkobcapbbacgdanjgma';
 
+// ----- api tasks ------
+
 function focusTabByIndex(index) {
     if (Number.isNaN(index)||index<0) {
         return;
@@ -16,14 +18,21 @@ function focusTabByIndex(index) {
         });
 }
 
+// ----- listen for and act on messages ------
+
+function auth(sender) {
+    return sender.id === APP_ID;
+}
+
 console.log('Listening for events');
 chrome.runtime.onMessageExternal.addListener(
     function(request, sender, sendResponse) {
         console.log(request, sender);
-        if (sender.id===APP_ID) {
+        if (auth(sender)) {
             switch (request.cmd) {
             case 'focusTabIndex': focusTabByIndex(Number(request.value)); break;
-            default: new Notification('Got something from '+sender.id, { body: JSON.stringify(request.myCustomMessage, null, 4) });
+            case 'notification':
+            default: new Notification('Got something from '+sender.id, { body: JSON.stringify(request.message, null, 4) });
             }
 
             sendResponse({ 'status': 200 });

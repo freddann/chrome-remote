@@ -1,8 +1,7 @@
 /* global console, chrome, TextDecoder, WSC, _ */
 
 const EXTENSION_ID='cndppbofippbaceojanmcndelhdknaag';
-
-// ----- handle http requests ------
+const POST_APIS=['notification', 'focusTabIndex'];
 
 const DECODER=new TextDecoder('utf-8');
 
@@ -10,6 +9,28 @@ function bufferToJSON(buffer) {
     const view=new Uint8Array(buffer);
     return JSON.parse(DECODER.decode(view));
 }
+
+// ----- request validation ------
+
+function isValidPutRequest(json) {
+    return false;
+}
+
+function isValidGetRequest(json) {
+    return true;
+}
+
+function isValidPostRequest(json) {
+    if (POST_APIS.includes(json.cmd)) {
+        switch (json.cmd) {
+        case 'notification': return typeof json.message==='string';
+        case 'focusTabIndex': return !Number.isNaN(Number(json.value));
+        }
+    }
+    return false;
+}
+
+// ----- handle http requests ------
 
 class RequestHandler extends WSC.BaseHandler {
     constructor() {
@@ -32,7 +53,12 @@ const RequestHandlerPrototype={
                 method: req.method,
                 path: req.path,
             }, null, 4);
-            this.respond(message, 200);
+            if (isValidGetRequest(message)) {
+                this.forwardMessageToExtension(message);
+                this.respond(message, 200);
+            } else {
+                this.respond('rejected', 400);
+            }
         } catch (error) {
             this.respond(error, 500);
         }
@@ -40,11 +66,12 @@ const RequestHandlerPrototype={
     put: function(path) {
         try {
             const json=bufferToJSON(this.request.body);
-            this.forwardMessageToExtension({
-                cmd: 'notification',
-                myCustomMessage: json,
-            });
-            this.respond('ok', 200);
+            if (isValidPutRequest(json)) {
+                this.forwardMessageToExtension(json);
+                this.respond('ok', 200);
+            } else {
+                this.respond('rejected', 400);
+            }
         } catch (error) {
             this.respond(error, 500);
         }
@@ -52,11 +79,12 @@ const RequestHandlerPrototype={
     post: function(path) {
         try {
             const json=bufferToJSON(this.request.body);
-            this.forwardMessageToExtension({
-                cmd: 'notification',
-                myCustomMessage: json,
-            });
-            this.respond('ok', 200);
+            if (isValidPostRequest(json)) {
+                this.forwardMessageToExtension(json);
+                this.respond('ok', 200);
+            } else {
+                this.respond('rejected', 400);
+            }
         } catch (error) {
             this.respond(error, 500);
         }

@@ -7,11 +7,23 @@
 </head>
 
 <body>
-    <h3>Waiting for messages</h3>
     <div>
-        <label for="sendText">Send message:</label>
-        <input id="sendText" type="text"></input>
+        <h3>Send notification</h3>
+        <input id="sendText" type="text" placeholder="Send notification message"></input>
         <button id="send">Send</button>
+    </div>
+    <div>
+        <h3>Windows</h3>
+        <input id="focusWindowIndex" type="text" placeholder="Focus window by index"></input>
+        <button id="focusWindow">Focus</button>
+        <button id="getAllWindows">getAllWindows</button>
+    </div>
+    <div>
+        <h3>Tabs</h3>
+        <input id="focusTabIndex" type="text" placeholder="Focus tab by index"></input>
+        <button id="focusTab">Focus</button>
+        <button id="prevTab">prev</button>
+        <button id="nextTab">next</button>
     </div>
     <div id="log"></div>
     <script src="index.js"></script>

@@ -1,6 +1,15 @@
-/* global console, chrome WSC, _ */
+/* global console, chrome, TextDecoder, WSC, _ */
+
+const EXTENSION_ID='cndppbofippbaceojanmcndelhdknaag';
 
 // ----- handle http requests ------
+
+const DECODER=new TextDecoder('utf-8');
+
+function bufferToJSON(buffer) {
+    const view=new Uint8Array(buffer);
+    return JSON.parse(DECODER.decode(view));
+}
 
 class RequestHandler extends WSC.BaseHandler {
     constructor() {
@@ -30,13 +39,23 @@ const RequestHandlerPrototype={
     },
     put: function(path) {
         try {
+            const json=bufferToJSON(this.request.body);
+            this.forwardMessageToExtension({
+                cmd: 'notification',
+                myCustomMessage: json,
+            });
             this.respond('ok', 200);
         } catch (error) {
-            this.respond('error', 500);
+            this.respond(error, 500);
         }
     },
     post: function(path) {
         try {
+            const json=bufferToJSON(this.request.body);
+            this.forwardMessageToExtension({
+                cmd: 'notification',
+                myCustomMessage: json,
+            });
             this.respond('ok', 200);
         } catch (error) {
             this.respond(error, 500);
@@ -48,6 +67,16 @@ const RequestHandlerPrototype={
         } else {
             this.respond(evt, 200);
         }
+    },
+
+    forwardMessageToExtension: function(jsonMessage) {
+        console.log('sending to '+EXTENSION_ID);
+        chrome.runtime.sendMessage(
+            EXTENSION_ID,
+            jsonMessage,
+            function(response) {
+                console.log('response: '+JSON.stringify(response, null, 4));
+            });
     },
 
     respond: function(message, status) {

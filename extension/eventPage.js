@@ -75,6 +75,21 @@ function focusPreviousTab() {
         });
 }
 
+function createNewTab() {
+    chrome.tabs.create({});
+}
+
+function closeTabByIndex(index) {
+    chrome.windows.getLastFocused({ populate: true },
+        function(currentWindow) {
+            if (index < currentWindow.tabs.length) {
+                const targetTab = currentWindow.tabs.find((tab) => tab.index === index);
+                console.log(targetTab.id);
+                chrome.tabs.remove(targetTab.id);
+            }
+        });
+}
+
 
 // ----- listen for and act on messages ------
 
@@ -98,6 +113,12 @@ chrome.runtime.onMessageExternal.addListener(
                 sendResponse({ 'status': 200 });
                 break;
             case 'focusPreviousTab': focusPreviousTab();
+                sendResponse({ 'status': 200 });
+                break;
+            case 'createNewTab': createNewTab();
+                sendResponse({ 'status': 200 });
+                break;
+            case 'closeTabByIndex': closeTabByIndex((Number(request.value)));
                 sendResponse({ 'status': 200 });
                 break;
             case 'getAllWindows': getAllWindows(sendResponse);

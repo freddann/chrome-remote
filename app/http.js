@@ -11,7 +11,7 @@ function bufferToJSON(buffer) {
 // ----- endpoints ------
 
 const GET_APIS=['/getAllWindows'];
-const POST_APIS=['/notification', '/focusWindowByIndex', '/focusTabByIndex', '/focusNextTab', '/focusPreviousTab'];
+const POST_APIS=['/notification', '/focusWindowByIndex', '/focusTabByIndex', '/focusNextTab', '/focusPreviousTab', '/closeTabByIndex', '/createNewTab'];
 
 // ----- request validation ------
 
@@ -27,8 +27,10 @@ function isValidPostRequest(request) {
     if (POST_APIS.includes(request.path)) {
         switch (request.path) {
         case '/notification': return request.arguments && typeof request.arguments.message==='string';
+        case '/closeTabByIndex':
         case '/focusWindowByIndex':
         case '/focusTabByIndex': return request.arguments && request.arguments.value !== '' && !Number.isNaN(Number(request.arguments.value));
+        case '/createNewTab':
         case '/focusNextTab':
         case '/focusPreviousTab': return true;
         }
@@ -42,9 +44,11 @@ function formatMessage(request) {
         cmd: request.path.length ? request.path.substr(1) : request.path,
     };
     switch (request.path) {
-    case '/notification': message.message = request.arguments.message==='string'; break;
-    case '/focusWindowByIndex': message.value = Number(request.arguments.value); break;
+    case '/notification': message.message = request.arguments.message; break;
+    case '/closeTabByIndex':
+    case '/focusWindowByIndex':
     case '/focusTabByIndex': message.value = Number(request.arguments.value); break;
+    case '/createNewTab':
     case '/focusNextTab':
     case '/focusPreviousTab':
     }

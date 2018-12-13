@@ -7,6 +7,8 @@ function formatTab(tab) {
         index: tab.index,
         title: tab.title,
         url: tab.url,
+        favIconUrl: tab.favIconUrl,
+        focused: tab.active,
     };
 }
 function formatWindow(window) {

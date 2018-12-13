@@ -11,7 +11,7 @@ function bufferToJSON(buffer) {
 // ----- endpoints ------
 
 const GET_APIS=['/getAllWindows'];
-const POST_APIS=['/notification', '/focusWindowByIndex', '/focusTabByIndex', '/focusNextTab', '/focusPreviousTab', '/closeTabByIndex', '/createNewTab'];
+const POST_APIS=['/notification', '/focusWindowByIndex', '/focusTabByIndex', '/focusNextTab', '/focusPreviousTab', '/closeTabByIndex', '/createNewTab', '/setUrl'];
 
 // ----- request validation ------
 
@@ -30,6 +30,7 @@ function isValidPostRequest(request) {
         case '/closeTabByIndex':
         case '/focusWindowByIndex':
         case '/focusTabByIndex': return request.arguments && request.arguments.value !== '' && !Number.isNaN(Number(request.arguments.value));
+        case '/setUrl': return request.arguments && request.arguments.url !== '';
         case '/createNewTab':
         case '/focusNextTab':
         case '/focusPreviousTab': return true;
@@ -48,6 +49,7 @@ function formatMessage(request) {
     case '/closeTabByIndex':
     case '/focusWindowByIndex':
     case '/focusTabByIndex': message.value = Number(request.arguments.value); break;
+    case '/setUrl': message.url = String(request.arguments.url); break;
     case '/createNewTab':
     case '/focusNextTab':
     case '/focusPreviousTab':

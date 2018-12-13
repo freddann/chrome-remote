@@ -75,6 +75,10 @@ function focusPreviousTab() {
         });
 }
 
+function setUrl(url) {
+    chrome.tabs.update({ url: url });
+}
+
 function createNewTab() {
     chrome.tabs.create({});
 }
@@ -119,6 +123,9 @@ chrome.runtime.onMessageExternal.addListener(
                 sendResponse({ 'status': 200 });
                 break;
             case 'closeTabByIndex': closeTabByIndex((Number(request.value)));
+                sendResponse({ 'status': 200 });
+                break;
+            case 'setUrl': setUrl(request.url);
                 sendResponse({ 'status': 200 });
                 break;
             case 'getAllWindows': getAllWindows(sendResponse);

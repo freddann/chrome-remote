@@ -73,13 +73,7 @@ const RequestHandlerPrototype={
     get: function(path) {
         try {
             if (isValidGetRequest(this.request)) {
-                const self = this;
-                chrome.runtime.sendMessage(
-                    EXTENSION_ID,
-                    formatMessage(this.request),
-                    function(response) {
-                        self.respond(JSON.stringify(response.windows), response.status);
-                    });
+                this.forwardRequestAndRespond();
             } else {
                 this.respond('rejected', 400);
             }
@@ -90,8 +84,7 @@ const RequestHandlerPrototype={
     put: function(path) {
         try {
             if (isValidPutRequest(this.request)) {
-                this.forwardMessageToExtension(formatMessage(this.request));
-                this.respond('ok', 200);
+                this.forwardRequestAndRespond();
             } else {
                 this.respond('rejected', 400);
             }
@@ -102,8 +95,7 @@ const RequestHandlerPrototype={
     post: function(path) {
         try {
             if (isValidPostRequest(this.request)) {
-                this.forwardMessageToExtension(formatMessage(this.request));
-                this.respond('ok', 200);
+                this.forwardRequestAndRespond();
             } else {
                 this.respond('rejected', 400);
             }
@@ -119,13 +111,14 @@ const RequestHandlerPrototype={
         }
     },
 
-    forwardMessageToExtension: function(jsonMessage) {
+    forwardRequestAndRespond: function() {
         console.log('sending to '+EXTENSION_ID);
+        const self = this;
         chrome.runtime.sendMessage(
             EXTENSION_ID,
-            jsonMessage,
+            formatMessage(this.request),
             function(response) {
-                console.log('response: '+JSON.stringify(response, null, 4));
+                self.respond(JSON.stringify(response.content), response.status);
             });
     },
 

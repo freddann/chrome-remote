@@ -46,7 +46,7 @@ function focusTabByIndex(sendResponse, index) {
     if (Number.isNaN(index)||index<0) {
         sendResponse({
             status: 404,
-            content: { error: 'IndexOutOfBounds' },
+            content: { message: 'IndexOutOfBounds' },
         });
     }
 
@@ -64,7 +64,7 @@ function focusTabByIndex(sendResponse, index) {
             } else {
                 sendResponse({
                     status: 404,
-                    content: { error: 'IndexOutOfBounds' },
+                    content: { message: 'IndexOutOfBounds' },
                 });
             }
         });
@@ -112,7 +112,7 @@ function setUrl(sendResponse, url) {
     chrome.windows.getLastFocused({ populate: true },
         function(currentWindow) {
             const focusedTab = currentWindow.tabs.find((tab) => tab.active);
-            chrome.tabs.update(focusedTab.id, { url: url },
+            chrome.tabs.update(focusedTab.id, { url: encodeURIComponent(url) },
                 function(tab) {
                     sendResponse({
                         status: 200,
@@ -141,8 +141,8 @@ function createNewTab(sendResponse) {
 function closeTabByIndex(sendResponse, index) {
     if (Number.isNaN(index)||index<0) {
         sendResponse({
-            status: 400,
-            content: { error: 'IndexOutOfBounds' },
+            status: 404,
+            content: { message: 'IndexOutOfBounds' },
         });
     }
 
@@ -160,8 +160,8 @@ function closeTabByIndex(sendResponse, index) {
                 });
             } else {
                 sendResponse({
-                    status: 400,
-                    content: { error: 'IndexOutOfBounds' },
+                    status: 404,
+                    content: { message: 'IndexOutOfBounds' },
                 });
             }
         });
@@ -174,14 +174,14 @@ function auth(sender) {
     return sender.id === APP_ID;
 }
 
-console.log('Listening for events');
+console.log('Listening for chrome messages from ', APP_ID);
 chrome.runtime.onMessageExternal.addListener(
     function(request, sender, sendResponse) {
         if (auth(sender)) {
             console.log('A message was authenticated', request, sender);
             switch (request.cmd) {
             case 'focusWindowByIndex': focusWindowByIndex(Number(request.value));
-                sendResponse({ 'status': 200 });
+                sendResponse({ status: 200 });
                 break;
             case 'focusTabByIndex': focusTabByIndex(sendResponse, Number(request.value));
                 return true;
@@ -198,14 +198,14 @@ chrome.runtime.onMessageExternal.addListener(
             case 'getAllWindows': getAllWindows(sendResponse);
                 return true;
             case 'notification': new Notification('Header', { body: JSON.stringify(request.message, null, 4) });
-                sendResponse({ 'status': 200 });
+                sendResponse({ status: 200 });
                 break;
             default: new Notification('Got something', { body: JSON.stringify(request, null, 4) });
-                sendResponse({ 'status': 200 });
+                sendResponse({ status: 400 });
             }
         } else {
-            console.log('A message was rejected');
-            sendResponse({ 'status': 401 });
+            console.error('A message was rejected', request, sender);
+            sendResponse({ status: 401 });
         }
 
         return true;

@@ -1,17 +1,13 @@
 /* global console, chrome, WSC, _ */
 
 const EXTENSION_ID='cndppbofippbaceojanmcndelhdknaag';
-/* const DECODER=new TextDecoder('utf-8');
-
-function bufferToJSON(buffer) {
-    const view=new Uint8Array(buffer);
-    return JSON.parse(DECODER.decode(view));
-} */
-
-// ----- endpoints ------
 
 const GET_APIS=['/getAllWindows'];
-const POST_APIS=['/notification', '/focusWindowByIndex', '/focusTabByIndex', '/focusNextTab', '/focusPreviousTab', '/closeTabByIndex', '/createNewTab', '/setUrl'];
+const POST_APIS=[
+    '/notification',
+    '/focusWindowByIndex',
+    '/focusTabByIndex',
+    '/focusNextTab', '/focusPreviousTab', '/closeTabByIndex', '/createNewTab', '/setUrl'];
 
 // ----- request validation ------
 
@@ -75,7 +71,7 @@ const RequestHandlerPrototype={
             if (isValidGetRequest(this.request)) {
                 this.forwardRequestAndRespond();
             } else {
-                this.respond('rejected', 400);
+                this.respond({ message: 'rejected' }, 400);
             }
         } catch (error) {
             this.respond(error, 500);
@@ -86,7 +82,7 @@ const RequestHandlerPrototype={
             if (isValidPutRequest(this.request)) {
                 this.forwardRequestAndRespond();
             } else {
-                this.respond('rejected', 400);
+                this.respond({ message: 'rejected' }, 400);
             }
         } catch (error) {
             this.respond(error, 500);
@@ -97,7 +93,7 @@ const RequestHandlerPrototype={
             if (isValidPostRequest(this.request)) {
                 this.forwardRequestAndRespond();
             } else {
-                this.respond('rejected', 400);
+                this.respond({ message: 'rejected' }, 400);
             }
         } catch (error) {
             this.respond(error, 500);
@@ -112,7 +108,7 @@ const RequestHandlerPrototype={
     },
 
     forwardRequestAndRespond: function() {
-        console.log('sending to '+EXTENSION_ID);
+        console.log('Sending message to', EXTENSION_ID);
         const self = this;
         chrome.runtime.sendMessage(
             EXTENSION_ID,
@@ -123,7 +119,7 @@ const RequestHandlerPrototype={
     },
 
     respond: function(message, status) {
-        console.log(status, message);
+        console.log('Response', status, message);
         this.write(message, status);
     },
 };

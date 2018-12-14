@@ -1,12 +1,9 @@
 {
     "manifest_version": 2,
-    "name": "Sample Messaging App1",
+    "name": "ChromeControl App",
     "description": "Relays messages to extension.",
     "version": "2",
     "minimum_chrome_version": "23",
-    "icons": {
-        "16": "ui/icon_16.png"
-    },
     "sockets":{
         "tcpServer": {
             "listen": "*"
@@ -17,7 +14,6 @@
             "scripts": [
                 "lib/underscore.min.js",
                 "lib/wsc-chrome.min.js",
-                "ui-launcher.js",
                 "http.js"
             ]
         }

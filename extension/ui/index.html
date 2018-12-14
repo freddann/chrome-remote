@@ -7,13 +7,22 @@
 </head>
 
 <body>
-    <h3>Waiting for messages</h3>
-    <div>
-        <label for="sendText">Send message:</label>
-        <input id="sendText" type="text"></input>
-        <button id="send">Send</button>
+    <h2>ChromeControl</h2>
+    <div class="section">
+        <label class="br">Server status:
+        <span id="status" type="text">APP NOT FOUND</span></label>
+        <ul id="urls"></ul>
     </div>
-    <div id="log"></div>
+    <div class="section">
+        <h4>Options</h4>
+        <label class="br"><input type="checkbox" id="optAutoStart" />optAutoStart</label>
+        <label class="br"><input type="checkbox" id="optBackground" />optBackground</label>
+        <label class="br"><input type="checkbox" id="optAllInterfaces" />optAllInterfaces</label>
+
+        <label class="br">Port:
+        <input type="number" id="port" name="port" min="1024" max="65535" placeholder="Enter a port number" /></label>
+    </div>
+    <div class="center"><button id="restart">Restart Server</button></div>
     <script src="index.js"></script>
 </body>
 

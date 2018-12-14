@@ -133,7 +133,65 @@ const options={
     handlers: [
         ['.*', RequestHandler],
     ],
+    renderIndex: false,
+    optBackground: true,
+    optAutoStart: true,
+    port: 8887,
+    optAllInterfaces: true,
 };
 const app=new WSC.WebApplication(options);
 app.start();
 console.log(app);
+
+function getStatus(app) {
+    if (app.lasterr) {
+        return app.lasterr;
+    } else if (app.started) {
+        return 'RUNNING';
+    } else if (app.starting) {
+        return 'INITIALISING';
+    } else {
+        return 'STOPPED';
+    }
+}
+
+function formatApp(app) {
+    return {
+        opts: app.opts,
+        urls: app.urls,
+        status: getStatus(app),
+    };
+}
+
+console.log('Listening for chrome messages from', EXTENSION_ID);
+chrome.runtime.onMessageExternal.addListener(
+    function(request, sender, sendResponse) {
+        if (sender.id === EXTENSION_ID) {
+            console.log('A message was authenticated', request, sender);
+            if (request.cmd === 'getApp') {
+                sendResponse({ status: 200, app: formatApp(app) });
+            } else if (request.cmd === 'setOptions' && request.opts) {
+                app.stop('restarting', (reason) => {
+                    if (reason === 'restarting') {
+                        console.log('parseInt', parseInt(request.opts.port));
+                        app.updateOption('renderIndex', false);
+                        app.updateOption('optBackground', request.opts.optBackground);
+                        app.updateOption('optAutoStart', request.opts.optAutoStart);
+                        app.updateOption('optAllInterfaces', request.opts.optAllInterfaces);
+                        app.updateOption('port', parseInt(request.opts.port));
+                        app.start((restartedApp) => {
+                            sendResponse({ status: 200, app: formatApp(restartedApp) });
+                        });
+                    }
+                });
+                return true;
+            } else {
+                sendResponse({ status: 400 });
+            }
+        } else {
+            console.error('A message was rejected', request, sender);
+            sendResponse({ status: 401 });
+        }
+
+        return true;
+    });

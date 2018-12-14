@@ -1,13 +1,13 @@
-input[type="text"] {
-  width: 240px;
+.br {
+    display: block;
 }
 
-#log {
-  background-color: rgb(226, 226, 250);
-  padding: 10px 20px;
-  margin-top: 10px;
-  height: 300px;
-  border: 1px solid black;
-  overflow-y: scroll;
-  overflow-x: hidden;
+.section {
+    margin: 20px;
+    width: 200px;
+}
+
+.center {
+    margin: 20px auto 20px auto;
+    text-align: center;
 }
